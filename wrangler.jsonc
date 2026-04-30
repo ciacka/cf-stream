@@ -7,13 +7,7 @@
 	"name": "cf-stream",
 	"compatibility_date": "2025-04-04",
 	"main": "./workers/app.ts",
-	"vars": {
-		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare"
-	},
-	// Secrets — ustaw przed deployem:
-	//   wrangler secret put CF_ACCOUNT_ID
-	//   wrangler secret put CF_API_TOKEN
-	// Lokalnie: utwórz plik .dev.vars (gitignorowany) z tymi wartościami
+	"vars": {},
 	"observability": {
 		"enabled": true
 	},
