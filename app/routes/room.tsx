@@ -41,7 +41,7 @@ export default function Room({ params }: Route.ComponentProps) {
         </section>
 
         <div className="lg:h-[calc(100vh-3rem)] lg:sticky lg:top-6">
-          <LiveChat currentUser="kuba_dev" />
+          <LiveChat roomId={meetingId} currentUser="kuba_dev" />
         </div>
       </div>
     </main>
