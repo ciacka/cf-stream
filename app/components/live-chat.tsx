@@ -5,6 +5,8 @@ type ChatMessage = {
   time: string;
 };
 
+const HOST_AUTHORS: ReadonlySet<string> = new Set(["piotr"]);
+
 const MOCK_MESSAGES: ChatMessage[] = [
   { id: "1", author: "anna", text: "Cześć wszystkim 👋", time: "20:01" },
   { id: "2", author: "kuba_dev", text: "Słychać i widać dobrze", time: "20:02" },
@@ -20,7 +22,7 @@ const MOCK_MESSAGES: ChatMessage[] = [
   { id: "12", author: "bartek", text: "Powodzenia!", time: "20:07" },
 ];
 
-export function LiveChat() {
+export function LiveChat({ currentUser }: { currentUser?: string }) {
   return (
     <aside className="flex flex-col bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden h-full min-h-[400px]">
       <header className="px-4 py-3 border-b border-neutral-800">
@@ -28,17 +30,47 @@ export function LiveChat() {
       </header>
 
       <ul className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-        {MOCK_MESSAGES.map((msg) => (
-          <li key={msg.id} className="text-sm leading-relaxed">
-            <span className="text-neutral-500 mr-2 tabular-nums text-xs">
-              {msg.time}
-            </span>
-            <span className="font-medium text-indigo-400 mr-1">
-              {msg.author}
-            </span>
-            <span className="text-neutral-200">{msg.text}</span>
-          </li>
-        ))}
+        {MOCK_MESSAGES.map((msg) => {
+          const isHost = HOST_AUTHORS.has(msg.author);
+          const isMine = currentUser !== undefined && msg.author === currentUser;
+
+          if (isMine) {
+            return (
+              <li key={msg.id} className="flex justify-end">
+                <div className="max-w-[80%] rounded-2xl bg-indigo-600/20 border border-indigo-500/40 px-3 py-2 text-sm leading-relaxed">
+                  {isHost && (
+                    <span className="inline-block mr-1 px-1.5 py-0.5 text-[10px] font-semibold rounded bg-amber-500/20 text-amber-300 uppercase tracking-wide align-middle">
+                      HOST
+                    </span>
+                  )}
+                  <span className="text-neutral-100">{msg.text}</span>
+                  <span className="ml-2 text-neutral-400 tabular-nums text-xs">
+                    {msg.time}
+                  </span>
+                </div>
+              </li>
+            );
+          }
+
+          return (
+            <li key={msg.id} className="text-sm leading-relaxed">
+              <span className="text-neutral-500 mr-2 tabular-nums text-xs">
+                {msg.time}
+              </span>
+              {isHost && (
+                <span className="inline-block mr-1 px-1.5 py-0.5 text-[10px] font-semibold rounded bg-amber-500/20 text-amber-300 uppercase tracking-wide align-middle">
+                  HOST
+                </span>
+              )}
+              <span
+                className={`font-medium mr-1 ${isHost ? "text-amber-300" : "text-indigo-400"}`}
+              >
+                {msg.author}
+              </span>
+              <span className="text-neutral-200">{msg.text}</span>
+            </li>
+          );
+        })}
       </ul>
 
       <form
