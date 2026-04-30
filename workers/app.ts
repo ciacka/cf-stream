@@ -1,4 +1,6 @@
+import { Hono } from "hono";
 import { createRequestHandler } from "react-router";
+export { ChatRoom } from './do/chat-room';
 
 declare module "react-router" {
   export interface AppLoadContext {
@@ -9,15 +11,27 @@ declare module "react-router" {
   }
 }
 
-const requestHandler = createRequestHandler(
+const reactRequestHandler = createRequestHandler(
   () => import("virtual:react-router/server-build"),
   import.meta.env.MODE
 );
 
-export default {
-  async fetch(request, env, ctx) {
-    return requestHandler(request, {
-      cloudflare: { env, ctx },
-    });
-  },
-} satisfies ExportedHandler<Env>;
+const app = new Hono<{Bindings: Env}>();
+
+app.get("/ws/chat/:roomId", async (c) => {
+  if (c.req.header("upgrade") !== "websocket") {
+    return c.text("Not a websocket request", 426);
+  }
+
+  const { roomId } = c.req.param();
+
+  return c.env.CHAT_ROOM.getByName(roomId).fetch(c.req.raw);
+});
+
+app.all("*", async (c) => {
+  return reactRequestHandler(c.req.raw, {
+    cloudflare: { env: c.env, ctx: c.executionCtx },
+  });
+});
+
+export default app;
