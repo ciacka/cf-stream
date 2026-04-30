@@ -1,5 +1,4 @@
 import { DurableObject } from "cloudflare:workers";
-import { nanoid } from "nanoid";
 
 export class ChatRoom extends DurableObject {
     sessions: Map<WebSocket, Record<string, string>>;
@@ -27,8 +26,10 @@ export class ChatRoom extends DurableObject {
     }
 
     async webSocketMessage(ws: WebSocket, message: string | ArrayBuffer): Promise<void> {
-        const session = this.sessions.get(ws)!;
-        console.log("Received message:", message);
+        this.sessions.forEach((state, session) => {
+            if (session == ws) return;
+            session.send(message);
+        });
     }
 
     async webSocketError(ws: WebSocket, error: unknown): Promise<void> {
